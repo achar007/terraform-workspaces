@@ -1,6 +1,6 @@
-# Terraform Workspaces Project
+# Terraform Workspace Demo
 
-This project uses [Terraform](https://www.terraform.io/) to manage infrastructure as code, supporting multiple environments (dev, stage, prod) using [Terraform Workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces).
+This repository demonstrates how to use [Terraform Workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces) to manage multiple environments (dev, stage, prod) with a simple AWS EC2 example.
 
 ## Project Structure
 
@@ -20,49 +20,57 @@ terraform.tfstate.d/   # State files for each workspace
     terraform.tfstate.backup
 ```
 
-## Usage
+## Prerequisites
+- [Terraform](https://www.terraform.io/downloads.html) >= 0.12
+- AWS CLI configured with credentials
 
-### 1. Initialize Terraform
+## Step-by-Step Demo
+
+### 1. Initialize the Project
 ```bash
 terraform init
 ```
 
-### 2. Select or Create a Workspace
+### 2. Create and Select a Workspace
+List available workspaces:
 ```bash
 terraform workspace list
-terraform workspace new <workspace-name>   # e.g., dev, stage, prod
-terraform workspace select <workspace-name>
+```
+Create a new workspace (e.g., `dev`):
+```bash
+terraform workspace new dev
+```
+Switch to an existing workspace (e.g., `stage`):
+```bash
+terraform workspace select stage
 ```
 
-### 3. Plan and Apply
+### 3. Configure Variables
+Edit `terraform.tfvars` to set your AMI ID and instance type:
+```hcl
+ami_id = "ami-xxxxxxxxxxxxxxxxx"
+instance_type = "t2.micro"
+```
+
+### 4. Plan and Apply Infrastructure
 ```bash
 terraform plan -var-file=terraform.tfvars
 terraform apply -var-file=terraform.tfvars
 ```
 
-### 4. Module Usage
-Modules are defined in the `modules/` directory. For example, the `ec2_instance` module can be referenced in your `main.tf`:
+### 5. Verify State Files
+Each workspace has its own state under `terraform.tfstate.d/<workspace>/`.
 
+## Clean Up
+To destroy resources in the current workspace:
+```bash
+terraform destroy -var-file=terraform.tfvars
 ```
-module "ec2_instance" {
-  source = "./modules/ec2_instance"
-  # ...module variables...
-}
-```
 
-## State Management
-- State files are managed per workspace under `terraform.tfstate.d/<workspace>/`.
-- Always select the correct workspace before running `plan` or `apply`.
-
-## Requirements
-- [Terraform](https://www.terraform.io/downloads.html) >= 0.12
-- AWS CLI (if using AWS resources)
-- Properly configured cloud credentials
-
-## Best Practices
-- Use workspaces to separate environments.
-- Store sensitive variables securely (avoid committing secrets).
-- Use modules for reusable infrastructure components.
+## Notes
+- Use workspaces to separate environments and avoid resource conflicts.
+- Store sensitive variables securely.
+- Use modules for reusable infrastructure.
 
 ## License
 MIT
